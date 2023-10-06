@@ -8,8 +8,8 @@ class my_class(object):
     pass
 
 class questionnaireTools(object):
-    def __init__(self):
-        self.apikey="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"
+    def __init__(self,apiKey):
+        self.apikey=apiKey
         self.proxy= {
             'http': 'http://localhost:7890',
             'https': 'http://localhost:7890'
@@ -30,13 +30,15 @@ class questionnaireTools(object):
             return None
 
     def getAIResponse(self,prompt):
-        response = openai.Completion.create(
-            engine="text-davinci-003",
-            prompt=prompt+"请用全中文回答",
-            max_tokens=512,
-            temperature=1,
-
-        )
+        try:
+            response = openai.Completion.create(
+                engine="text-davinci-003",
+                prompt=prompt+"请用全中文回答",
+                max_tokens=256,
+                temperature=1
+            )
+        except Exception as e:
+            print(e)
 
         #print(response)
         replyList=response.choices[0].text.split("\n")

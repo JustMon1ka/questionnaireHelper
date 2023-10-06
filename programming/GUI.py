@@ -36,7 +36,7 @@ class GUIBoard(object):
 
         self.values = [entry.get() for entry in self.entries]
         print(self.values," ",self.AIFlag.get())
-        webdriver=webDriver.webRun(self.values[0],int(self.values[1]),self.AIFlag.get())
+        webdriver=webDriver.webRun(self.values[0],int(self.values[1]),self.values[2],self.AIFlag.get())
         webdriver.run()
 
     def uploadImg(self,x,y):
@@ -67,8 +67,9 @@ class GUIBoard(object):
         self.uploadImg(240,30)
         self.create_entries(5,55,20,"填写次数")
         self.create_checkBox(5,100,"是否使用Ai来填写填空题（会导致脚本运行速度变慢），不勾选则全部填“不知道")
+        self.create_entries(5,140,30,"如果要使用此功能，需要填入openAI的api-key")
         #tk.Label(self.root,text="请注意：该脚本无法处理填空题（因为我懒），如果问卷中有填空题，脚本只会填“不知道”").place(x=30,y=110)
-        self.create_submit_button(250,140)
+        self.create_submit_button(250,200)
         
 
         self.root.mainloop()
