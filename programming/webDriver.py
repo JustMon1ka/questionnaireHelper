@@ -7,12 +7,13 @@ from random import sample
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+import tools
 
 class my_class(object):
     pass
 
 class webRun:
-    def __init__(self,url,times) -> None:
+    def __init__(self,url,times,AiFlag) -> None:
         self.url=url
         self.times=times
         self.selections=[]
@@ -20,6 +21,7 @@ class webRun:
         self.path = 0
         self.passtime = 0
         self.subpath=0
+        self.AiFlag=AiFlag
 
     def run(self):
         
@@ -94,8 +96,15 @@ class webRun:
                         except:
                             print(f"未找到第{i}题对应的元素，将跳过")
                             continue
-                        driver.find_element(By.XPATH,f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/input").send_keys("不知道")
-                        print("找到填空题，填不知道")
+                        if self.AiFlag:
+                            question=driver.find_element(By.XPATH,f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[1]").text
+                            print(f"找到填空题,题目：{question} 将填入AI的回答：")
+                            tool=tools.questionnaireTools()
+                            reply=tool.getAIResponse(question)
+                        else:
+                            reply="不知道"
+                        #input("")
+                        driver.find_element(By.XPATH,f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/input").send_keys(reply)
                         continue
                     if className=="jqradio": #单选                
                         select = randint(1,selections)
@@ -118,6 +127,7 @@ class webRun:
                 except:
                     break
 
+            #input("")
             if time==1:
                 for k in range(5,15):
                     try:
@@ -130,7 +140,7 @@ class webRun:
                         break
             else:
                 driver.find_element(By.XPATH,f"/html/body/div[1]/form/div[13]/div[{self.subpath}]/div[3]/div/div/div").click()
-            
+
             sleep(1)
             driver.quit()
 

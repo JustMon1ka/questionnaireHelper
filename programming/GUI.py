@@ -11,6 +11,7 @@ class GUIBoard(object):
         self.root = tk.Tk()
         self.values=[]
         self.entries = []  # 用于存储 Entry 组件的列表
+        self.AIFlag = tk.BooleanVar()
         
 
     def create_entries(self,x,y,width,tag=""):
@@ -26,11 +27,16 @@ class GUIBoard(object):
         submit_button.grid(row=len(self.entries), column=0)
         submit_button.place(x=x,y=y)
 
+    def create_checkBox(self,x,y,lable):
+        checkButton=tk.Checkbutton(self.root,text=lable, variable=self.AIFlag)
+        checkButton.place(x=x,y=y)
+
+
     def submit(self):
 
         self.values = [entry.get() for entry in self.entries]
-        print(self.values)
-        webdriver=webDriver.webRun(self.values[0],int(self.values[1]))
+        print(self.values," ",self.AIFlag.get())
+        webdriver=webDriver.webRun(self.values[0],int(self.values[1]),self.AIFlag.get())
         webdriver.run()
 
     def uploadImg(self,x,y):
@@ -60,7 +66,8 @@ class GUIBoard(object):
         self.create_entries(5,5,30,"问卷网址(直接输入网站或者上传问卷二维码)")
         self.uploadImg(240,30)
         self.create_entries(5,55,20,"填写次数")
-        tk.Label(self.root,text="请注意：该脚本无法处理填空题（因为我懒），如果问卷中有填空题，脚本只会填“不知道”").place(x=30,y=110)
+        self.create_checkBox(5,100,"是否使用Ai来填写填空题（会导致脚本运行速度变慢），不勾选则全部填“不知道")
+        #tk.Label(self.root,text="请注意：该脚本无法处理填空题（因为我懒），如果问卷中有填空题，脚本只会填“不知道”").place(x=30,y=110)
         self.create_submit_button(250,140)
         
 
