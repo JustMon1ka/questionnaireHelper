@@ -14,5 +14,7 @@
 ——apiKey获取网站：https://platform.openai.com/account/api-keys （需要梯子）
 #####
 ——如果你实在不想申请apiKey或者无法申请，也可以联系作者本人来白嫖作者的apiKey（QQ：1664382962）
+#####
+——一般来说，最大Token数设置为256或者512比较好（不强求）
 ### 其他
 欢迎各位大佬指出或者参与修改本程序的bug！
