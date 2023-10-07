@@ -8,7 +8,7 @@ class my_class(object):
     pass
 
 class questionnaireTools(object):
-    def __init__(self,apiKey):
+    def __init__(self,apiKey,maxToken):
         self.apikey=apiKey
         self.proxy= {
             'http': 'http://localhost:7890',
@@ -16,6 +16,7 @@ class questionnaireTools(object):
         }
         openai.proxy = self.proxy
         openai.api_key = self.apikey
+        self.maxToken = int(maxToken)
 
     def decode_qr_code(self, file_path):
         try:
@@ -34,7 +35,7 @@ class questionnaireTools(object):
             response = openai.Completion.create(
                 engine="text-davinci-003",
                 prompt=prompt+"请用全中文回答",
-                max_tokens=256,
+                max_tokens=self.maxToken,
                 temperature=1
             )
         except Exception as e:

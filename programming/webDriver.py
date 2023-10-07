@@ -15,7 +15,7 @@ class my_class(object):
 
 
 class webRun:
-    def __init__(self, url, times, apiKey, AiFlag) -> None:
+    def __init__(self, url, times, apiKey, maxToken, AiFlag) -> None:
         self.url = url
         self.times = times
         self.selections = []
@@ -25,6 +25,7 @@ class webRun:
         self.subpath = 0
         self.apiKey = apiKey
         self.AiFlag = AiFlag
+        self.maxToken = maxToken
 
     def run(self):
 
@@ -59,7 +60,7 @@ class webRun:
                                 self.path = path
                                 break
                     elementFlag = 1
-                    try:  # 先找该题的题型，1=填空，3=选择，5=打分(是字符串类型的值)
+                    try:  # 先找该题的题型，1=填空，2=大型填空，3=单项选择，4=多项选择，5=打分(1~5分打分题),8=打分题（0~100打分题）(是字符串类型的值)
                         ele = driver.find_element(By.XPATH,
                                                   f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]")
                         print(f"找到第{i}题对应的元素")
@@ -80,7 +81,7 @@ class webRun:
                         print(elementFlag)
 
                     className = ""
-                    if elementFlag == '3':  # 选择题题型处理
+                    if elementFlag == '3' or elementFlag == '4':  # 选择题题型处理
                         element = driver.find_element(By.XPATH,
                                                       f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/div[1]/span/a")
                         className = str(element.get_attribute("class"))  # 如果是选择题，则根据class的值判断是单选还是多选
@@ -101,12 +102,11 @@ class webRun:
                                     if text.find("其他") == -1:
                                         selections += 1
                             self.selections.append(selections)
-                            print(f"第{i}题：题型‘{className}’,选项个数：{selections}")
                         else:  # 如果是选择题，且不是第一遍填问卷，则直接读取第一遍存入的信息
                             selections = self.selections[i - 1]
-                            print(f"第{i}题：题型‘{className}’,选项个数：{selections}")
 
                         if className == "jqradio":  # 单选
+                            print(f"第{i}题，题型：单选，选项个数：{selections}")
                             select = randint(1, selections)
                             print(select)
                             try:
@@ -115,7 +115,15 @@ class webRun:
                             except:
                                 continue
                         elif className == "jqcheck":  # 多选
-                            selectTimes = randint(1, selections)
+                            title = driver.find_element(By.XPATH,  # 首先找到该题题目，判断是否有最少选择和最大选择限制
+                                                        f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]")
+                            minvalue = title.get_attribute("minvalue")
+                            maxvalue = title.get_attribute("maxvalue")
+                            minselection = int(minvalue) if minvalue is not None else 1
+                            maxselection = int(maxvalue) if maxvalue is not None else selections
+                            selectTimes = randint(minselection, maxselection)  # 根据题目要求在范围内随机抽取选择个数
+                            print(
+                                f"第{i}题，题型：多选，选项个数：{selections}，将随机选择{minselection}——{maxselection}项选项")
                             integer_list = list(range(1, selections + 1))
                             samples = sample(integer_list, selectTimes)
                             print(samples)
@@ -125,20 +133,30 @@ class webRun:
                                                         f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/div[{select}]/span/a").click()
                                 except:
                                     continue
-                    elif elementFlag == '1':  # 填空题题型处理
+                    elif elementFlag == '1' or elementFlag == '2':  # 填空题题型处理
                         if time == 1:
                             self.selections.append(0)
-                        try:
-                            driver.find_element(By.XPATH,
-                                                f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/input").click()
-                        except:
-                            print(f"未找到第{i}题对应的元素，将跳过")
-                            continue
+                        if elementFlag == '1':
+                            try:
+                                inputelement = driver.find_element(By.XPATH,
+                                                                   f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/input")
+                                inputelement.click()
+                            except:
+                                print(f"未找到第{i}题对应的元素，将跳过")
+                                continue
+                        else:
+                            try:
+                                inputelement = driver.find_element(By.XPATH,
+                                                                   f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/textarea")
+                                inputelement.click()
+                            except:
+                                print(f"未找到第{i}题对应的元素，将跳过")
+                                continue
                         if self.AiFlag:
                             question = driver.find_element(By.XPATH,
                                                            f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[1]").text
                             print(f"第{i}题，题型：“填空题”,题目：{question} 将填入AI的回答：")
-                            tool = tools.questionnaireTools(self.apiKey)
+                            tool = tools.questionnaireTools(self.apiKey,self.maxToken)
                             for _ in range(1, 3):
                                 reply = "不知道"
                                 try:
@@ -151,11 +169,11 @@ class webRun:
                             print(f"第{i}题，题型：“填空题”,未启用Ai回复功能，统一填入”不知道“")
                             reply = "不知道"
                         # input("")
-                        driver.find_element(By.XPATH,
-                                            f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/input").send_keys(
+                        inputelement.send_keys(
                             reply)
                         continue
                     elif elementFlag == '5':  # 打分题题型处理
+
                         if time == 1:  # 第一遍时先检查该题有几个选项并储存
                             selections = 0
                             for j in range(1, 10):
@@ -184,12 +202,22 @@ class webRun:
                                                 f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/div[2]/div/ul/li[{select}]/a").click()
                         except:
                             continue
+                    elif elementFlag == "8":  # 0~100的打分题
+                        if time == 1:
+                            self.selections.append(0)
+                        score = randint(1, 100)
+                        try:
+                            driver.find_element(By.XPATH,
+                                                f"/html/body/div[1]/form/div[13]/div[{self.path}]/fieldset/div[{i}]/input").send_keys(
+                                str(score))
+                        except:
+                            continue
 
                     # input("按任意键继续")
                 except:
                     break
 
-            #input("")
+            # input("")
             if time == 1:
                 for k in range(5, 15):
                     try:
