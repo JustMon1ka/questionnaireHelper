@@ -125,7 +125,7 @@ class webRun:
                                         EC.presence_of_element_located((By.XPATH,
                                                                         f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]/div[2]/div[{j}]/div"))
                                     ).text
-                                    #print(j,".",text)
+                                    # print(j,".",text)
                                 except TimeoutException:
                                     print(f"未在 {self.timeout} 秒内找到新的选项")
                                     break
@@ -169,7 +169,7 @@ class webRun:
                                 continue
                         elif elementFlag == '4':  # 多选
                             title = driver.find_element(By.XPATH,  # 首先找到该题题目，判断是否有最少选择和最大选择限制
-                                                        f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}")
+                                                        f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]")
                             minvalue = title.get_attribute("minvalue")
                             maxvalue = title.get_attribute("maxvalue")
                             minselection = int(minvalue) if minvalue is not None else 1
@@ -202,7 +202,7 @@ class webRun:
                             for select in selects:
                                 try:
                                     driver.find_element(By.XPATH,
-                                                        f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}/div[2]/div[{select}]/span/a").click()
+                                                        f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]/div[2]/div[{select}]/span/a").click()
                                 except:
                                     continue
                     elif elementFlag == '1' or elementFlag == '2':  # 填空题题型处理
@@ -211,7 +211,7 @@ class webRun:
                         if elementFlag == '1':
                             try:
                                 inputelement = driver.find_element(By.XPATH,
-                                                                   f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}/div[2]/input")
+                                                                   f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]/div[2]/input")
                                 inputelement.click()
                             except:
                                 print(f"未找到第{i}题对应的元素，将跳过")
@@ -219,14 +219,14 @@ class webRun:
                         else:
                             try:
                                 inputelement = driver.find_element(By.XPATH,
-                                                                   f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}/div[2]/textarea")
+                                                                   f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]/div[2]/textarea")
                                 inputelement.click()
                             except:
                                 print(f"未找到第{i}题对应的元素，将跳过")
                                 continue
                         if self.AiFlag:
                             question = driver.find_element(By.XPATH,
-                                                           f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}/div[1]").text
+                                                           f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]/div[1]").text
                             print(f"第{i}题，题型：“填空题”,题目：{question} 将填入AI的回答：")
                             for _ in range(1, 3):
                                 reply = "不知道"
@@ -275,15 +275,18 @@ class webRun:
                         except:
                             continue
                     elif elementFlag == "8":  # 0~100的打分题
+                        print(f"第{i}题：题型‘权重打分题’")
                         if time == 1:
                             self.selections.append(0)
                         score = randint(1, 100)
                         print(score)
                         try:
-                            driver.find_element(By.XPATH,
-                                                f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}/input").send_keys(
-                                str(score))
-                        except:
+                            ele = driver.find_element(By.XPATH,
+                                                      f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]/input")
+                            ele.click()
+                            ele.send_keys(str(score))
+                        except Exception as e:
+                            print(e)
                             continue
 
                     # input("按任意键继续")
