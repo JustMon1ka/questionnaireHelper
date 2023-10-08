@@ -270,7 +270,7 @@ class webRun:
                         print(select)
                         try:
                             driver.find_element(By.XPATH,
-                                                f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}/div[2]/div/ul/li[{select}]/a"
+                                                f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]/div[2]/div/ul/li[{select}]/a"
                                                 ).click()
                         except:
                             continue
