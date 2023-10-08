@@ -251,7 +251,7 @@ class webRun:
                                 try:
                                     text = WebDriverWait(driver, self.timeout).until(
                                         EC.presence_of_element_located((By.XPATH,
-                                                                        f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}/div[2]/div/ul/li[{j}]/a"))
+                                                                        f"/html/body/div[{self.firstPath}]/form/div[{self.secondPath}]/div[{self.thirdPath}]/fieldset/div[{i}]/div[2]/div/ul/li[{j}]/a"))
                                     ).text
                                     print(text)
                                 except TimeoutException:
